@@ -2,8 +2,8 @@
 
 ## Initial Setup
 
-### 1. Rename Template
-- [ ] Update `finpilot` to your name in: Containerfile, Justfile, README.md, artifacthub-repo.yml
+### 1. ✅ Rename Template
+- [x] Updated `finpilot` to `aurora-br` in: Containerfile, Justfile, README.md, artifacthub-repo.yml, clean.yml
 
 ### 2. Enable GitHub Actions
 - [ ] Settings → Actions → General → Enable workflows
@@ -18,7 +18,7 @@ git push origin main
 
 ### 4. Deploy
 ```bash
-sudo bootc switch --transport registry ghcr.io/YOUR_USERNAME/YOUR_REPO:stable
+sudo bootc switch --transport registry ghcr.io/lbssousa/aurora-br:stable
 sudo systemctl reboot
 ```
 
