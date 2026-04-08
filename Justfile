@@ -15,6 +15,7 @@ images := '(
 flavors := '(
     [main]=main
     [nvidia-open]=nvidia-open
+    [nvidia]=nvidia
 )'
 tags := '(
     [stable]=stable
@@ -146,6 +147,8 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     fi
     if [[ "${flavor}" =~ nvidia-open ]]; then
         {{ just }} verify-container cosign.pub "ghcr.io/ublue-os/akmods-nvidia-open:${akmods_flavor}-${fedora_version}-${kernel_release}"
+    elif [[ "${flavor}" =~ nvidia ]]; then
+        {{ just }} verify-container cosign.pub "ghcr.io/ublue-os/akmods-nvidia-lts:${akmods_flavor}-${fedora_version}-${kernel_release}"
     fi
 
     {{ just }} verify-container ghcr.io-get-aurora-dev.pub "ghcr.io/get-aurora-dev/common:latest@${common_image_sha}"
@@ -226,8 +229,10 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     "coreos-stable") BUILD_ARGS+=("--cpp-flag=-DZFS") ;;
     esac
 
-    if [[ "${image_name}" =~ nvidia ]]; then
-        BUILD_ARGS+=("--cpp-flag=-DNVIDIA")
+    if [[ "${image_name}" =~ nvidia-open ]]; then
+        BUILD_ARGS+=("--cpp-flag=-DNVIDIA_OPEN")
+    elif [[ "${image_name}" =~ nvidia ]]; then
+        BUILD_ARGS+=("--cpp-flag=-DNVIDIA_LTS")
     fi
 
     PODMAN_BUILD_ARGS=("${BUILD_ARGS[@]}" "${LABELS[@]}" --tag localhost/"${image_name}:${tag}" --file Containerfile.in)
@@ -730,6 +735,6 @@ retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
         echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
         skopeo="skopeo"
     fi
-    for image in aurora-nvidia-open aurora-dx-nvidia-open; do
-      $skopeo copy docker://ghcr.io/ublue-os/${image}:{{ working_tag }} docker://ghcr.io/ublue-os/${image}:{{ stream }}
+    for image in aurora-br-nvidia-open aurora-br-dx-nvidia-open aurora-br-nvidia aurora-br-dx-nvidia; do
+      $skopeo copy docker://ghcr.io/lbssousa/${image}:{{ working_tag }} docker://ghcr.io/lbssousa/${image}:{{ stream }}
     done

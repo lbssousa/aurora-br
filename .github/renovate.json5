@@ -62,7 +62,8 @@
       "matchDepNames": [
         "quay.io/fedora-ostree-desktops/kinoite",
         "ghcr.io/ublue-os/brew",
-        "ghcr.io/get-aurora-dev/common"
+        "ghcr.io/get-aurora-dev/common",
+        "ghcr.io/ublue-os/akmods-nvidia-lts"
       ]
     },
     {
