@@ -19,7 +19,7 @@ Here are the changes from the base [Aurora/Silverblue](https://github.com/ublue-
 ### Configuration
 - Podman socket enabled by default (`podman.socket`)
 
-*Last updated: 2025-01*
+*Last updated: January 2025*
 
 ---
 
