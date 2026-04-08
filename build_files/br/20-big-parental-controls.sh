@@ -47,7 +47,11 @@ echo "::group:: Clone and Build big-parental-controls"
 BPC_DIR=$(mktemp -d)
 export CARGO_HOME="${BPC_DIR}/cargo-home"
 
-git clone --depth=1 https://github.com/biglinux/big-parental-controls.git "${BPC_DIR}/src"
+# Pin to a specific commit for reproducible builds and supply chain safety
+# renovate: datasource=github-commits depName=biglinux/big-parental-controls
+BPC_COMMIT="34e81dbf7a231c827e24fa18cf71b7f258ddbe04"
+git clone https://github.com/biglinux/big-parental-controls.git "${BPC_DIR}/src"
+git -C "${BPC_DIR}/src" checkout "${BPC_COMMIT}"
 
 INTERNAL_DIR="${BPC_DIR}/src/big-parental-controls"
 
@@ -91,7 +95,7 @@ echo "::endgroup::"
 
 echo "::group:: Cleanup Build Dependencies"
 
-dnf5 remove -y rust cargo
+dnf5 remove -y rust cargo git
 
 rm -rf "${BPC_DIR}"
 

@@ -17,6 +17,28 @@
       ],
       datasourceTemplate: 'docker',
     },
+    {
+      // Track Epson ESC/P-R driver version in build_files/br/10-epson-printer.sh
+      customType: 'regex',
+      managerFilePatterns: ['/^build_files/br/10-epson-printer\\.sh$/'],
+      matchStrings: [
+        '# renovate: datasource=custom\\.epson-escpr\\nESCPR_VERSION="(?<currentValue>[^"]+)"',
+        '# renovate: datasource=custom\\.epson-printer-utility\\nUTILITY_VERSION="(?<currentValue>[^"]+)"',
+      ],
+      datasourceTemplate: 'custom.epson',
+      depNameTemplate: 'epson-inkjet-printer-escpr',
+    },
+    {
+      // Track biglinux/big-parental-controls commit SHA
+      customType: 'regex',
+      managerFilePatterns: ['/^build_files/br/20-big-parental-controls\\.sh$/'],
+      matchStrings: [
+        'BPC_COMMIT="(?<currentDigest>[a-f0-9]{40})"',
+      ],
+      datasourceTemplate: 'github-tags',
+      depNameTemplate: 'biglinux/big-parental-controls',
+      currentValueTemplate: 'main',
+    },
     ],
 
   "packageRules": [
