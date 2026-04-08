@@ -1,0 +1,19 @@
+images:
+  - name: kinoite
+    image: quay.io/fedora-ostree-desktops/kinoite
+    tag: 43
+    digest: sha256:7e6c0413acbc05f3f10bbaf4c3d29eb2a829c6d4cdcca7f978dd79375b4370c2
+  - name: common
+    image: ghcr.io/get-aurora-dev/common
+    tag: latest
+    digest: sha256:84f8dcc94aa074831926dc6432b76d48120136f6e87eda3597527b2fdcb8cbc1
+  - name: brew
+    image: ghcr.io/ublue-os/brew
+    tag: latest
+    digest: sha256:425af8cc820c12e09a058748730f5677ed718058f39310892f2641c19f263957
+  - name: akmods-nvidia-lts-main
+    image: ghcr.io/ublue-os/akmods-nvidia-lts
+    tag: main-43
+    # Renovate will update this digest automatically.
+    # Must match the same Fedora version as kinoite.
+    digest: sha256:4b623c2c1844ddc98575b2de2374bf6c5e3e2ed12d01ac6b77e505c7f2159519
