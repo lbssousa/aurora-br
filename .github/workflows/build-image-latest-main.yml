@@ -1,0 +1,45 @@
+name: Latest Images
+on:
+  merge_group:
+  pull_request:
+    branches:
+      - main
+      - testing
+    paths-ignore:
+      - "**.md"
+      - ".github/workflows/moderator.yml"
+      - ".github/workflows/scorecard.yml"
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  build-image-latest:
+    name: Build Latest Images
+    uses: ./.github/workflows/reusable-build.yml
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix:
+        brand_name: ["aurora-br"]
+    with:
+      image_flavors: '["main", "nvidia-open"]'
+      brand_name: ${{ matrix.brand_name }}
+      stream_name: latest
+      #kernel_pin: 6.12.15-200.fc41.x86_64
+
+  generate-release:
+    name: Generate Release
+    needs: [build-image-latest]
+    permissions:
+      contents: write
+    secrets: inherit
+    uses: ./.github/workflows/generate-release.yml
+    with:
+      stream_name: '["latest"]'
