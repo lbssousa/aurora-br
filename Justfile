@@ -15,7 +15,7 @@ images := '(
 flavors := '(
     [main]=main
     [nvidia-open]=nvidia-open
-    [nvidia]=nvidia
+    [nvidia-lts]=nvidia-lts
 )'
 tags := '(
     [stable]=stable
@@ -232,6 +232,9 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     if [[ "${image_name}" =~ nvidia-open ]]; then
         BUILD_ARGS+=("--cpp-flag=-DNVIDIA_OPEN")
     elif [[ "${image_name}" =~ nvidia ]]; then
+        # nvidia-lts: proprietary NVIDIA drivers via akmods-nvidia-lts
+        # Both nvidia-open and nvidia-lts mount to /tmp/rpms/nvidia, so
+        # 04-nvidia.sh works with either variant without modification.
         BUILD_ARGS+=("--cpp-flag=-DNVIDIA_LTS")
     fi
 
@@ -735,6 +738,6 @@ retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
         echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
         skopeo="skopeo"
     fi
-    for image in aurora-br-nvidia-open aurora-br-dx-nvidia-open aurora-br-nvidia aurora-br-dx-nvidia; do
+    for image in aurora-br-nvidia-open aurora-br-dx-nvidia-open aurora-br-nvidia-lts aurora-br-dx-nvidia-lts; do
       $skopeo copy docker://ghcr.io/lbssousa/${image}:{{ working_tag }} docker://ghcr.io/lbssousa/${image}:{{ stream }}
     done
