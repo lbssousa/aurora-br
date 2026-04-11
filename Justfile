@@ -697,11 +697,11 @@ tag-images image_name="" default_tag="" tags="":
 
 # DNF CI package cache
 [group('Utility')]
-setup-cache $image="aurora" $tag="testing" $ghcr="0" $github_event="0":
+setup-cache $image="aurora" $tag="testing" $flavor="main" $ghcr="0" $github_event="0":
     #!/usr/bin/bash
     set -eou pipefail
 
-    image_name=$({{ just }} image_name '{{ image }}')
+    image_name=$({{ just }} image_name '{{ image }}' '{{ tag }}' '{{ flavor }}')
     fedora_version=$({{ just }} fedora_version '{{ image }}' '{{ tag }}')
 
     ALLOW_CACHE_WRITE="false"
