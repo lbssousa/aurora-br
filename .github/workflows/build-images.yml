@@ -15,13 +15,17 @@ jobs:
           contents: write
           packages: write
           id-token: write
-    build-image-latest-main:
-        uses: ./.github/workflows/build-image-latest-main.yml
+    build-image-testing:
+        uses: ./.github/workflows/build-image-testing.yml
         secrets: inherit
         permissions:
           contents: write
           packages: write
           id-token: write
-#    build-image-beta:
-#        uses: ./.github/workflows/build-image-beta.yml
-#        secrets: inherit
+    build-image-next:
+        uses: ./.github/workflows/build-image-next.yml
+        secrets: inherit
+        permissions:
+          contents: write
+          packages: write
+          id-token: write

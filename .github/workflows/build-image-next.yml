@@ -1,9 +1,9 @@
-name: Beta Images
+name: Next Images
 on:
    #merge_group:
    pull_request:
      branches:
-       - beta
+       - next
      paths-ignore:
        - "**.md"
        - ".github/workflows/moderator.yml"
@@ -19,8 +19,8 @@ permissions:
   artifact-metadata: write
 
 jobs:
-  build-image-beta:
-    name: Build Beta Images
+  build-image-next:
+    name: Build Next Images
     uses: ./.github/workflows/reusable-build.yml
     secrets: inherit
     strategy:
@@ -28,6 +28,6 @@ jobs:
       matrix:
         brand_name: ["aurora-br"]
     with:
-      image_flavors: '["main", "nvidia-open"]'
+      image_flavors: '["main", "nvidia-open", "nvidia"]'
       brand_name: ${{ matrix.brand_name }}
-      stream_name: beta
+      stream_name: next
