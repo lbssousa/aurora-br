@@ -6,26 +6,61 @@ permissions:
   contents: read
   packages: write
   id-token: write
+  attestations: write
+  artifact-metadata: write
 
+# Call reusable-build.yml directly for each stream to avoid the
+# GitHub Actions limitation that prevents using strategy+matrix
+# inside a reusable workflow called from another reusable workflow.
 jobs:
-    build-image-stable:
-        uses: ./.github/workflows/build-image-stable.yml
+    build-stable:
+        uses: ./.github/workflows/reusable-build.yml
         secrets: inherit
         permissions:
-          contents: write
+          contents: read
           packages: write
           id-token: write
-    build-image-testing:
-        uses: ./.github/workflows/build-image-testing.yml
+          attestations: write
+          artifact-metadata: write
+        with:
+          image_flavors: '["main", "nvidia-open", "nvidia"]'
+          brand_name: aurora-br
+          stream_name: stable
+
+    build-testing:
+        uses: ./.github/workflows/reusable-build.yml
         secrets: inherit
         permissions:
-          contents: write
+          contents: read
           packages: write
           id-token: write
-    build-image-next:
-        uses: ./.github/workflows/build-image-next.yml
+          attestations: write
+          artifact-metadata: write
+        with:
+          image_flavors: '["main", "nvidia-open", "nvidia"]'
+          brand_name: aurora-br
+          stream_name: testing
+
+    build-next:
+        uses: ./.github/workflows/reusable-build.yml
         secrets: inherit
         permissions:
-          contents: write
+          contents: read
           packages: write
           id-token: write
+          attestations: write
+          artifact-metadata: write
+        with:
+          image_flavors: '["main", "nvidia-open", "nvidia"]'
+          brand_name: aurora-br
+          stream_name: next
+
+    generate-release:
+        name: Generate Release
+        needs: [build-stable]
+        permissions:
+          contents: write
+        secrets: inherit
+        uses: ./.github/workflows/generate-release.yml
+        with:
+          stream_name: '["stable", "stable-daily"]'
