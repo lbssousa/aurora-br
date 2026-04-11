@@ -1,4 +1,5 @@
 # aurora-br fork: default organization is lbssousa. Update for your own fork.
+
 export repo_organization := env("GITHUB_REPOSITORY_OWNER", "lbssousa")
 export base_image_org := env("BASE_IMAGE_ORG", "quay.io/fedora-ostree-desktops")
 export base_image_name := env("BASE_IMAGE_NAME", "kinoite")
