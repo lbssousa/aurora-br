@@ -7,8 +7,8 @@ export common_image := env("COMMON_IMAGE", "ghcr.io/get-aurora-dev/common:latest
 export brew_image := env("BREW_IMAGE", "ghcr.io/ublue-os/brew:latest")
 rechunker_image := "ghcr.io/ublue-os/legacy-rechunk:v1.0.1-x86_64@sha256:2627cbf92ca60ab7372070dcf93b40f457926f301509ffba47a04d6a9e1ddaf7"
 stable_version := "43"
-latest_version := "43"
-beta_version := "44"
+testing_version := "43"
+next_version := "44"
 images := '(
     [aurora-br]=aurora-br
     [aurora-br-dx]=aurora-br-dx
@@ -16,12 +16,12 @@ images := '(
 flavors := '(
     [main]=main
     [nvidia-open]=nvidia-open
-    [nvidia-lts]=nvidia-lts
+    [nvidia]=nvidia
 )'
 tags := '(
     [stable]=stable
-    [latest]=latest
-    [beta]=beta
+    [testing]=testing
+    [next]=next
 )'
 export SUDO_DISPLAY := if `if [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]; then echo true; fi` == "true" { "true" } else { "false" }
 export SUDOIF := if `id -u` == "0" { "" } else { "sudo" }
@@ -101,7 +101,7 @@ validate $image $tag $flavor:
 
 # Build Image
 [group('Image')]
-build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
+build $image="aurora" $tag="testing" $flavor="main" rechunk="0" ghcr="0" pipeline="0" $kernel_pin="":
     #!/usr/bin/bash
 
     echo "::group:: Build Prep"
@@ -119,7 +119,7 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
     # AKMODS Flavor and Kernel Version
     if [[ "${tag}" =~ stable ]]; then
         akmods_flavor="coreos-stable"
-    elif [[ "${tag}" =~ beta ]]; then
+    elif [[ "${tag}" =~ next ]]; then
         akmods_flavor="main"
     else
         akmods_flavor="main"
@@ -263,12 +263,12 @@ build $image="aurora" $tag="latest" $flavor="main" rechunk="0" ghcr="0" pipeline
 
 # Build Image and Rechunk
 [group('Image')]
-build-rechunk image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-rechunk image="aurora" tag="testing" flavor="main" kernel_pin="":
     @{{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 0 0 {{ kernel_pin }}
 
 # Build Image with GHCR Flag
 [group('Image')]
-build-ghcr image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-ghcr image="aurora" tag="testing" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     if [[ "${UID}" -gt "0" ]]; then
         echo "Must Run with sudo or as root..."
@@ -278,14 +278,14 @@ build-ghcr image="aurora" tag="latest" flavor="main" kernel_pin="":
 
 # Build Image for Pipeline:
 [group('Image')]
-build-pipeline image="aurora" tag="latest" flavor="main" kernel_pin="":
+build-pipeline image="aurora" tag="testing" flavor="main" kernel_pin="":
     #!/usr/bin/bash
     ${SUDOIF} {{ just }} build {{ image }} {{ tag }} {{ flavor }} 1 1 1 {{ kernel_pin }}
 
 # Rechunk Image
 [group('Image')]
 [private]
-rechunk $image="aurora" $tag="latest" $flavor="main" ghcr="0" pipeline="0":
+rechunk $image="aurora" $tag="testing" $flavor="main" ghcr="0" pipeline="0":
     #!/usr/bin/bash
 
     echo "::group:: Rechunk Prep"
@@ -441,7 +441,7 @@ rechunk $image="aurora" $tag="latest" $flavor="main" ghcr="0" pipeline="0":
 
 # Load OCI into Podman Store
 [group('Image')]
-load-rechunk image="aurora" tag="latest" flavor="main":
+load-rechunk image="aurora" tag="testing" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -462,7 +462,7 @@ load-rechunk image="aurora" tag="latest" flavor="main":
 
 # Run Container
 [group('Image')]
-run $image="aurora" $tag="latest" $flavor="main":
+run $image="aurora" $tag="testing" $flavor="main":
     #!/usr/bin/bash
     set -eoux pipefail
 
@@ -517,7 +517,7 @@ verify-container key="" container="":
 
 # Secureboot Check
 [group('Utility')]
-secureboot $image="aurora" $tag="latest" $flavor="main":
+secureboot $image="aurora" $tag="testing" $flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -569,7 +569,7 @@ secureboot $image="aurora" $tag="latest" $flavor="main":
 # Get Fedora Version of an image
 [group('Utility')]
 [private]
-fedora_version image="aurora" tag="latest" flavor="main" $kernel_pin="":
+fedora_version image="aurora" tag="testing" flavor="main" $kernel_pin="":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
@@ -577,10 +577,10 @@ fedora_version image="aurora" tag="latest" flavor="main" $kernel_pin="":
     # Determine Version
     if [[ "{{ tag }}" =~ stable ]]; then
         VERSION="{{ stable_version }}"
-    elif [[ "{{ tag }}" =~ beta ]]; then
-        VERSION="{{ beta_version }}"
+    elif [[ "{{ tag }}" =~ next ]]; then
+        VERSION="{{ next_version }}"
     else
-        VERSION="{{ latest_version }}"
+        VERSION="{{ testing_version }}"
     fi
 
     echo "${VERSION}"
@@ -588,7 +588,7 @@ fedora_version image="aurora" tag="latest" flavor="main" $kernel_pin="":
 # Image Name
 [group('Utility')]
 [private]
-image_name image="aurora" tag="latest" flavor="main":
+image_name image="aurora" tag="testing" flavor="main":
     #!/usr/bin/bash
     set -eou pipefail
     {{ just }} validate {{ image }} {{ tag }} {{ flavor }}
@@ -601,7 +601,7 @@ image_name image="aurora" tag="latest" flavor="main":
 
 # Generate Tags
 [group('Utility')]
-generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
+generate-build-tags image="aurora" tag="testing" flavor="main" kernel_pin="" ghcr="0" $version="" github_event="" github_number="":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -646,7 +646,7 @@ generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr
         BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
     elif [[ "{{ tag }}" =~ "stable" && "{{ ghcr }}" == "0" ]]; then
         BUILD_TAGS+=("stable" "stable-${version}" "stable-${version:3}")
-    elif [[ ! "{{ tag }}" =~ stable|beta ]]; then
+    elif [[ ! "{{ tag }}" =~ stable|next ]]; then
         BUILD_TAGS+=("${FEDORA_VERSION}" "${FEDORA_VERSION}-${version}" "${FEDORA_VERSION}-${version:3}")
     fi
 
@@ -660,7 +660,7 @@ generate-build-tags image="aurora" tag="latest" flavor="main" kernel_pin="" ghcr
 
 # Generate Default Tag
 [group('Utility')]
-generate-default-tag tag="latest" ghcr="0":
+generate-default-tag tag="testing" ghcr="0":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -697,7 +697,7 @@ tag-images image_name="" default_tag="" tags="":
 
 # DNF CI package cache
 [group('Utility')]
-setup-cache $image="aurora" $tag="latest" $ghcr="0" $github_event="0":
+setup-cache $image="aurora" $tag="testing" $ghcr="0" $github_event="0":
     #!/usr/bin/bash
     set -eou pipefail
 
@@ -706,7 +706,7 @@ setup-cache $image="aurora" $tag="latest" $ghcr="0" $github_event="0":
 
     ALLOW_CACHE_WRITE="false"
 
-    BLESSED_IMAGE=aurora-dx
+    BLESSED_IMAGE=aurora-br-dx
 
     if [[ "${image_name}" == "${BLESSED_IMAGE}" ]] && \
        [[ "{{ ghcr }}" == "1" ]] && \
@@ -739,6 +739,6 @@ retag-nvidia-on-ghcr working_tag="" stream="" dry_run="1":
         echo "$GITHUB_PAT" | podman login -u $GITHUB_USERNAME --password-stdin ghcr.io
         skopeo="skopeo"
     fi
-    for image in aurora-br-nvidia-open aurora-br-dx-nvidia-open aurora-br-nvidia-lts aurora-br-dx-nvidia-lts; do
+    for image in aurora-br-nvidia-open aurora-br-dx-nvidia-open aurora-br-nvidia aurora-br-dx-nvidia; do
       $skopeo copy docker://ghcr.io/lbssousa/${image}:{{ working_tag }} docker://ghcr.io/lbssousa/${image}:{{ stream }}
     done

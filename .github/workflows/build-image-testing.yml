@@ -1,4 +1,4 @@
-name: Latest Images
+name: Testing Images
 on:
   merge_group:
   pull_request:
@@ -20,8 +20,8 @@ permissions:
   artifact-metadata: write
 
 jobs:
-  build-image-latest:
-    name: Build Latest Images
+  build-image-testing:
+    name: Build Testing Images
     uses: ./.github/workflows/reusable-build.yml
     secrets: inherit
     strategy:
@@ -29,17 +29,16 @@ jobs:
       matrix:
         brand_name: ["aurora-br"]
     with:
-      image_flavors: '["main", "nvidia-open", "nvidia-lts"]'
+      image_flavors: '["main", "nvidia-open", "nvidia"]'
       brand_name: ${{ matrix.brand_name }}
-      stream_name: latest
-      #kernel_pin: 6.12.15-200.fc41.x86_64
+      stream_name: testing
 
   generate-release:
     name: Generate Release
-    needs: [build-image-latest]
+    needs: [build-image-testing]
     permissions:
       contents: write
     secrets: inherit
     uses: ./.github/workflows/generate-release.yml
     with:
-      stream_name: '["latest"]'
+      stream_name: '["testing"]'
